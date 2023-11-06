@@ -11,8 +11,8 @@ class CampaignDAO {
       // })
       return data
   }
-  async readCampaignById(id) {
-      const data = await db('campaign').where('campaignId', id).select()
+  async readCampaignById(campaignId) {
+      const data = await db('campaign').where('campaignId', campaignId).select()
       // const campaignDAO = {
       //   id: data[0].campaignId,
       //   name: data[0].campaignName,
@@ -20,14 +20,14 @@ class CampaignDAO {
       
       return data
   }
-  async createCampaign(campaign) {
-    console.log(campaign);
-    // console.log("🚀 ~ file: campaign.js:24 ~ CampaignDAO ~ createCampaign ~ campaign:", campaign)
-    const data = await db('campaign').insert(campaign)
-    console.log("🚀 ~ file: campaign.js:27 ~ CampaignDAO ~ createCampaign ~ data:", data)
-
-    // return campaign
-    // return data
+  async createCampaign(campaignData) {
+    await db('campaign').insert(campaignData)
+  }
+  async updateCampaign(campaignId, campaignData) {
+    await db('campaign').where('campaignId', campaignId).update(campaignData)
+  }
+  async deleteCampaign(campaignId) {
+    await db('campaign').where('campaignId', campaignId).del()
   }
 }
 module.exports = new CampaignDAO();

@@ -27,10 +27,12 @@ const CampaignController = require('../Controllers/campaign');
 
 router.route('/campaign')
   .get(CampaignController.readCampaignList)
-  .post(CampaignController.createCampaign);
-  
+  .post(CampaignController.createCampaign)
+
 router.route('/campaign/:id')
-  .get(CampaignController.readCampaignById);
+  .get(CampaignController.readCampaignById)
+  .patch(CampaignController.updateCampaign)
+  .delete(CampaignController.deleteCampaign)
 
 
 // router.get('/campaign/:id', readCampaignId)

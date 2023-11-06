@@ -44,6 +44,34 @@ class CampaignController {
       })
     }
   }
+  async updateCampaign(req, res) {
+    try {
+      const data = await CampaignService.updateCampaign(req.params.id, req.body)
+      res.status(200).send({
+          message: 'Update campaign success',
+          // data: data
+        })
+    } catch (error) {
+      res.status(500).send({  
+        message: 'Update campaign fail',
+        data: error
+      })
+    }
+  }
+  async deleteCampaign(req, res) {
+    try {
+      const data = await CampaignService.deleteCampaign(req.params.id)
+      res.status(200).send({
+          message: 'Delete campaign success',
+          // data: data
+        })
+    } catch (error) {
+      res.status(500).send({ 
+        message: 'Delete campaign fail',
+        data: error
+      })
+    }
+  }
 
 }
 module.exports = new CampaignController();
