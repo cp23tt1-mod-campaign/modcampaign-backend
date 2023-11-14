@@ -11,12 +11,12 @@ class CampaignController {
         data: data,
       });
     } catch (error) {
-      return handleError(error, res);
-      // console.log(error);
-      // res.status(500).send({
-      //   message: "Get campaign fail",
-      //   data: error,
-      // });
+      // return handleError(error, res);
+      console.log(error);
+      res.status(500).send({
+        message: "Get campaign fail",
+        data: error,
+      });
     }
   }
   async readCampaignById(req, res) {

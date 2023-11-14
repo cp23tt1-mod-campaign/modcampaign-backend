@@ -1,40 +1,23 @@
 const db = require("../Config/db.js");
 
 class CampaignDAO {
-  async readCampaignList(query) {
-    const data = await db("campaign")
-      .join(
-        "campaignCategory",
-        "campaign.campaignCategory",
-        "=",
-        "campaignCategory.campaignCategoryId"
-      )
-      .select();
+  async readCampaignList(data) {
     const campaignDTO = data.map((campaign) => {
       return {
         id: campaign.campaignId,
         name: campaign.campaignName,
-        description: campaign.campaignDetail,
+        // description: campaign.campaignDetail,
         start: campaign.campaignStart,
         end: campaign.campaignEnd,
-        type: campaign.campaignType,
-        userLimit: campaign.campaignUserLimit,
-        category: campaign.categoryName,
-        categoryTarget: campaign.categoryTarget,
+        // type: campaign.campaignType,
+        // userLimit: campaign.campaignUserLimit,
+        // category: campaign.categoryName,
+        // categoryTarget: campaign.categoryTarget,
       };
     });
     return campaignDTO;
   }
-  async readCampaignById(campaignId) {
-    const data = await db("campaign")
-      .join(
-        "campaignCategory",
-        "campaign.campaignCategory",
-        "=",
-        "campaignCategory.campaignCategoryId"
-      )
-      .where("campaignId", campaignId)
-      .select();
+  async readCampaignById(data) {
     const campaignDTO = data.map((campaign) => {
       return {
         id: campaign.campaignId,
