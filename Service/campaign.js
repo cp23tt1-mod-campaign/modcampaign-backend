@@ -9,7 +9,7 @@ class CampaignService {
       const data = await db("campaign")
         .join(
           "campaignCategory",
-          "campaign.campaignCategory",
+          "campaign.campaignCategoryId",
           "=",
           "campaignCategory.campaignCategoryId"
         )
@@ -29,7 +29,7 @@ class CampaignService {
         )
         .join(
           "campaignCategory as cc",
-          "c.campaignCategory",
+          "c.campaignCategoryId",
           "cc.campaignCategoryId"
         )
         .orderBy("userInCampaign.count", "desc")
@@ -64,7 +64,7 @@ class CampaignService {
     const data = await db("campaign")
       .join(
         "campaignCategory",
-        "campaign.campaignCategory",
+        "campaign.campaignCategoryId",
         "=",
         "campaignCategory.campaignCategoryId"
       )
