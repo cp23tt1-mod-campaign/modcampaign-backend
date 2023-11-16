@@ -3,53 +3,41 @@
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
+require("dotenv").config();
 module.exports = {
-
-  // development: {
-  //   client: 'sqlite3',
-  //   connection: {
-  //     filename: './dev.sqlite3'
-  //   }
-  // },
-
   development: {
-    // client: 'postgresql',
-    client: 'mysql2',
-    // connection: {
-    //   database: 'my_db',
-    //   user:     'username',
-    //   password: 'password'
-    // },
+    client: "mysql2",
     connection: {
-      host: 'localhost',
-      port: 3306,
-      user: 'root',
-      password: 'rJutkIS30032545!',
-      database: 'ModCampaign'
+      host: process.env.MYSQL_HOST || "localhost",
+      port: process.env.MYSQL_PORT || 3306,
+      user: process.env.MYSQL_USER || "root",
+      password: process.env.MYSQL_PASSWORD || "rJutkIS30032545!",
+      database: process.env.MYSQL_DB || "ModCampaign",
     },
     pool: {
       min: 2,
-      max: 10
+      max: 10,
     },
     migrations: {
-      tableName: 'knex_migrations'
-    }
+      tableName: "knex_migrations",
+    },
   },
 
   // production: {
-  //   client: 'postgresql',
+  //   client: "mysql2",
   //   connection: {
-  //     database: 'my_db',
-  //     user:     'username',
-  //     password: 'password'
+  //     host: process.env.MYSQL_HOST,
+  //     port: process.env.MYSQL_PORT,
+  //     user: process.env.MYSQL_USER,
+  //     password: process.env.MYSQL_PASSWORD,
+  //     database: process.env.MYSQL_DB,
   //   },
   //   pool: {
   //     min: 2,
-  //     max: 10
+  //     max: 10,
   //   },
   //   migrations: {
-  //     tableName: 'knex_migrations'
-  //   }
-  // }
-
+  //     tableName: "knex_migrations",
+  //   },
+  // },
 };

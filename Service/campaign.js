@@ -1,4 +1,4 @@
-const campaignDAO = require("../Dao/campaign.js");
+const campaignDAO = require("../Model/campaign.js");
 const db = require("../Config/db.js");
 
 class CampaignService {
