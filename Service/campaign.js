@@ -19,12 +19,12 @@ class CampaignService {
     } else if (query.listType === "popular") {
       const data = await db("campaign as c")
         .join(
-          db("User_In_Campaign")
+          db("userInCampaign")
             .select("campaignId")
             .count("* as count")
             .groupBy("campaignId")
-            .as("userInCampaign"),
-          "userInCampaign.campaignId",
+            .as("uic"),
+          "uic.campaignId",
           "c.campaignId"
         )
         .join(
@@ -32,18 +32,18 @@ class CampaignService {
           "c.campaignCategoryId",
           "cc.campaignCategoryId"
         )
-        .orderBy("userInCampaign.count", "desc")
+        .orderBy("uic.count", "desc")
         .select();
       // return data;
       return campaignModel.readCampaignList(data);
     } else {
       const data = await db("campaign")
         .join(
-          "User_In_Campaign",
+          "userInCampaign",
           "campaign.campaignId",
-          "User_In_Campaign.campaignId"
+          "userInCampaign.campaignId"
         )
-        .where("User_In_Campaign.userId", query.userId)
+        .where("userInCampaign.userId", query.userId)
         .select();
       return campaignModel.readCampaignList(data);
     }
