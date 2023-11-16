@@ -1,4 +1,4 @@
-const campaignDAO = require("../Model/campaign.js");
+const campaignModel = require("../Model/campaign.js");
 const db = require("../Config/db.js");
 
 class CampaignService {
@@ -15,7 +15,7 @@ class CampaignService {
         )
         .orderBy("campaign.campaignId", "desc")
         .select();
-      return campaignDAO.readCampaignList(data);
+      return campaignModel.readCampaignList(data);
     } else if (query.listType === "popular") {
       const data = await db("campaign as c")
         .join(
@@ -35,7 +35,7 @@ class CampaignService {
         .orderBy("userInCampaign.count", "desc")
         .select();
       // return data;
-      return campaignDAO.readCampaignList(data);
+      return campaignModel.readCampaignList(data);
     } else {
       const data = await db("campaign")
         .join(
@@ -45,20 +45,8 @@ class CampaignService {
         )
         .where("User_In_Campaign.userId", query.userId)
         .select();
-      return campaignDAO.readCampaignList(data);
+      return campaignModel.readCampaignList(data);
     }
-
-    // const data = await db("campaign")
-    //   // .join(join)
-    //   .orderBy(orderBy.column, orderBy.direction)
-    //   // .where((builder)=>{
-    //   //   if(query.listType === "popular") {
-    //   //     builder.where('campaign.campaignCategory', query.category)
-    //   //   }
-    //   // })
-    //   .select();
-
-    // return campaignDAO.readCampaignList(data);
   }
   async readCampaignById(campaignId) {
     const data = await db("campaign")
@@ -70,16 +58,21 @@ class CampaignService {
       )
       .where("campaignId", campaignId)
       .select();
-    return campaignDAO.readCampaignById(data);
+    return campaignModel.readCampaignById(data);
   }
-  createCampaign(campaignData) {
-    return campaignDAO.createCampaign(campaignData);
+  async createCampaign(campaignData) {
+    return await db("campaign").insert(campaignData);
+    // return campaignModel.createCampaign(campaignData);
   }
-  updateCampaign(campaignId, campaignData) {
-    return campaignDAO.updateCampaign(campaignId, campaignData);
+  async updateCampaign(campaignId, campaignData) {
+    return await db("campaign")
+      .where("campaignId", campaignId)
+      .update(campaignData);
+    // return campaignModel.updateCampaign(campaignId, campaignData);
   }
-  deleteCampaign(campaignId) {
-    return campaignDAO.deleteCampaign(campaignId);
+  async deleteCampaign(campaignId) {
+    return await db("campaign").where("campaignId", campaignId).del();
+    // return campaignModel.deleteCampaign(campaignId);
   }
 }
 module.exports = new CampaignService();
