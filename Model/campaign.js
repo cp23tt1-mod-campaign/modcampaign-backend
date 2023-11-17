@@ -26,7 +26,7 @@ class CampaignDAO {
         start: campaign.campaignStart,
         end: campaign.campaignEnd,
         type: campaign.campaignType,
-        image: campaign.campaignImage,
+        image: campaign.campaignImageUrl,
         userLimit: campaign.campaignUserLimit,
         category: campaign.categoryName,
         categoryTarget: campaign.categoryTarget,
