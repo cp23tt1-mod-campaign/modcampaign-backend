@@ -18,7 +18,7 @@ class CampaignService {
       return campaignModel.readCampaignList(data);
     } else if (query.listType === "popular") {
       const data = await db("campaign as c")
-        .join(
+        .leftJoin(
           db("userInCampaign")
             .select("campaignId")
             .count("* as count")

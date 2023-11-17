@@ -1,39 +1,12 @@
-const db = require("../Config/db.js");
-
+const { dataMapper } = require("../Helper/datamapper.js");
+const campaignListDTO = require("../DTO/campaignListDTO.js");
+const campaignDetailDTO = require("../DTO/campaignDetailDTO.js");
 class CampaignDAO {
   async readCampaignList(data) {
-    const campaignDTO = data.map((campaign) => {
-      return {
-        id: campaign.campaignId,
-        name: campaign.campaignName,
-        // description: campaign.campaignDetail,
-        start: campaign.campaignStart,
-        end: campaign.campaignEnd,
-        // type: campaign.campaignType,
-        // userLimit: campaign.campaignUserLimit,
-        // category: campaign.categoryName,
-        // categoryTarget: campaign.categoryTarget,
-      };
-    });
-    return campaignDTO;
+    return dataMapper(data, campaignListDTO);
   }
   async readCampaignById(data) {
-    const campaignDTO = data.map((campaign) => {
-      return {
-        id: campaign.campaignId,
-        name: campaign.campaignName,
-        description: campaign.campaignDetail,
-        start: campaign.campaignStart,
-        end: campaign.campaignEnd,
-        type: campaign.campaignType,
-        image: campaign.campaignImageUrl,
-        userLimit: campaign.campaignUserLimit,
-        category: campaign.categoryName,
-        categoryTarget: campaign.categoryTarget,
-        userOwner: campaign.userId,
-      };
-    });
-    return campaignDTO;
+    return dataMapper(data[0], campaignDetailDTO);
   }
   // async createCampaign(campaignData) {
   //   await db("campaign").insert(campaignData);
