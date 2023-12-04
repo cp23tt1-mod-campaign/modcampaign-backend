@@ -19,9 +19,9 @@ class CampaignService {
       table.whereNotExists((notExist) => {
         notExist
           .select("*")
-          .from("UserInCampaign")
-          .whereRaw("UserInCampaign.campaignId = campaign.campaignId")
-          .andWhere("UserInCampaign.userId", userId);
+          .from("userInCampaign")
+          .whereRaw("userInCampaign.campaignId = campaign.campaignId")
+          .andWhere("userInCampaign.userId", userId);
       });
       table.orderBy("campaign.campaignId", "desc");
       data = await table.select();
@@ -44,9 +44,9 @@ class CampaignService {
       table.whereNotExists((notExist) => {
         notExist
           .select("*")
-          .from("UserInCampaign")
-          .whereRaw("UserInCampaign.campaignId = campaign.campaignId")
-          .andWhere("UserInCampaign.userId", userId);
+          .from("userInCampaign")
+          .whereRaw("userInCampaign.campaignId = campaign.campaignId")
+          .andWhere("userInCampaign.userId", userId);
       });
       table.orderBy("uic.count", "desc");
       data = await table.select();
