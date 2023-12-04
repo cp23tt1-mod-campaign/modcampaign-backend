@@ -4,28 +4,39 @@ const { ErrorHandler, handleError } = require("../Util/Error.js");
 class CampaignController {
   async readCampaignList(req, res) {
     // console.log(req.headers.authorization);
+    const { userId } = req.query;
+    // console.log(userId);
+
     try {
+      if (userId === undefined) {
+        throw new ErrorHandler(400, "User id is required");
+      }
       const data = await CampaignService.readCampaignList(req.query);
       res.status(200).send({
         message: "Get campaign success",
         data: data,
       });
     } catch (error) {
-      // return handleError(error, res);
-      console.log(error);
-      res.status(500).send({
-        message: "Get campaign fail",
-        data: error,
-      });
+      return handleError(error, res);
+      // console.log(error);
+      // res.status(500).send({
+      //   message: "Get campaign fail",
+      //   data: error,
+      // });
     }
   }
   async readCampaignById(req, res) {
+    const { id } = req.params;
     try {
-      const data = await CampaignService.readCampaignById(req.params.id);
-      res.status(200).send({
-        message: "Get campaign success",
-        data: data,
-      });
+      const data = await CampaignService.readCampaignById(id);
+      if (data.status === "notFound") {
+        throw new ErrorHandler(404, data.message);
+      } else {
+        res.status(200).send({
+          message: "Get campaign success",
+          data: data,
+        });
+      }
     } catch (error) {
       return handleError(error, res);
       // res.status(500).send({
@@ -77,14 +88,50 @@ class CampaignController {
       }
 
       const data = await CampaignService.deleteCampaign(req.params.id);
-      res.status(200).send({
-        message: "Delete campaign success",
-        // data: data
-      });
+      if (data.status === "notFound") {
+        throw new ErrorHandler(404, data.message);
+      } else if (data.status === "error") {
+        throw new ErrorHandler(400, data.message);
+      } else if (data.status === "success") {
+        res.status(200).send({
+          message: "Delete campaign success",
+          // data: data
+        });
+      }
     } catch (error) {
       return handleError(error, res);
       // res.status(500).send({
       //   message: "Delete campaign fail",
+      //   data: error,
+      // });
+    }
+  }
+  async uploadCampaignImage(req, res) {
+    try {
+      const data = await CampaignService.uploadImage(req.file);
+      res.status(200).send({
+        message: "Upload campaign image success",
+        data: data,
+      });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  }
+  async joinCampaign(req, res) {
+    try {
+      const data = await CampaignService.joinCampaign(req.body);
+      if (data.status === "error") {
+        throw new ErrorHandler(400, data.message);
+      } else if (data.status === "success") {
+        res.status(200).send({
+          message: data.message,
+          // data: data
+        });
+      }
+    } catch (error) {
+      return handleError(error, res);
+      // res.status(500).send({
+      //   message: "Join campaign fail",
       //   data: error,
       // });
     }
