@@ -6,8 +6,9 @@ module.exports = campaignDetailDTO = {
   end: "campaignEnd",
   type: "campaignType",
   image: "campaignImageUrl",
+  reward: "campaignReward",
   userLimit: "campaignUserLimit",
   category: "categoryName",
   categoryTarget: "categoryTarget",
-  userOwner: "userId",
+  userOwner: "firstName",
 };

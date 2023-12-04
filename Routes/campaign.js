@@ -1,75 +1,51 @@
-const express = require('express');
+const express = require("express");
+const multer = require("multer");
+const storage = multer.diskStorage({
+  destination: function (req, file, callback) {
+    callback(null, "Service/fileUploads");
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
+// const upload = multer({ dest: "Service/fileUploads" });
 const router = express.Router();
-// const db = require('../Config/db.js');
-// const { readCampaignList, readCampaignId } = require('../Controllers/campaign');
-const CampaignController = require('../Controllers/campaign');
 
-// router.get('/getAttendList', read );
-// router.route('/getAttendList')
-//   .get(read);
+const CampaignController = require("../Controllers/campaign");
 
-// router.get('/campaign', readCampaignList)
-// router.get('/campaign', (req, res) => {
-//   // console.log(req.query);
-//   // console.log(req.headers.authorization);
-//   db('campaign').then(data => {
-//     res.status(200).send({
-//       message: 'Get campaign success',
-//       data: data
-//     })
-//   }).catch(err => {
-//     res.status(500).send({
-//       message: 'Get campaign fail',
-//       data: err
-//     })
-//   })
-// })
-
-router.route('/campaign')
+router
+  .route("/campaign")
   .get(CampaignController.readCampaignList)
-  .post(CampaignController.createCampaign)
+  .post(CampaignController.createCampaign);
 
-router.route('/campaign/:id')
+router
+  .route("/campaign/:id")
   .get(CampaignController.readCampaignById)
   .patch(CampaignController.updateCampaign)
-  .delete(CampaignController.deleteCampaign)
+  .delete(CampaignController.deleteCampaign);
 
+router
+  .route("/campaign/upload-img")
+  .post(upload.single("image"), CampaignController.uploadCampaignImage);
 
-// router.get('/campaign/:id', readCampaignId)
-// router.get('/campaign/:id', (req, res) => {
+router.route("/campaign/join").post(CampaignController.joinCampaign);
+
+// router.get("/getPersonalHealth/:id", (req, res) => {
+//   console.log(req.params);
 //   const { id } = req.params;
-//   db('campaign').where('campaignId', id).then(data => { 
-//     res.status(200).send({
-//       message: 'Get campaign success',
-//       data: data
-//     })
-//    }
-//   ).catch(err => {  
-//     res.status(500).send({
-//       message: 'Get campaign fail',
-//       data: err
-//     })
-//   })
-// })
+//   console.log(id);
+//   res.send(`Your personal health id is: ${id}`);
+// });
 
+// router.post("/createCampaign", (req, res) => {
+//   // const body = req.body;
+//   const jsonBody = JSON.stringify(req.body);
+//   console.log(jsonBody);
+//   console.log(req.body);
 
-router.get('/getPersonalHealth/:id', (req, res) => {
-  console.log(req.params);
-  const { id } = req.params;
-  console.log(id);
-  res.send(`Your personal health id is: ${id}`);
-
-});
-
-router.post('/createCampaign', (req, res) => {
-  // const body = req.body;
-  const jsonBody = JSON.stringify(req.body);
-  console.log(jsonBody);
-  console.log(req.body);
-
-  res.status(201)
-  res.send(`Your campaign is created`);
-});
-
+//   res.status(201);
+//   res.send(`Your campaign is created`);
+// });
 
 module.exports = router;
