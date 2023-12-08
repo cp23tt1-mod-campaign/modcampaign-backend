@@ -121,7 +121,7 @@ class CampaignService {
     //   .update(campaignData);
     // return campaignModel.updateCampaign(campaignId, campaignData);
   }
-  async deleteCampaign(campaignId) {
+  async deleteCampaign(campaignId, userId) {
     const table = db("campaign");
     // return await
     const isExist = await table.where("campaignId", campaignId);
@@ -130,18 +130,28 @@ class CampaignService {
       return { status: "notFound", message: "Campaign not found" };
     } else {
       table.where("campaignId", "=", campaignId);
-      table.where("campaignEnd", "<", new Date());
-      const rowAffected = table.del();
-
+      const result = await table.select();
+      const campaignEndDate = result[0].campaignEnd;
+      const ownedUserId = result[0].userId;
+      const currentDate = new Date();
+      if (ownedUserId === parseInt(userId)) {
+        if (campaignEndDate < currentDate) {
+          return { status: "error", message: "Campaign is ended" };
+        } else {
+          table.where("campaignId", campaignId);
+          await table.del();
+          return { status: "success", message: "Campaign is deleted" };
+        }
+      } else {
+        return {
+          status: "error",
+          message: "You are not the owner of this campaign",
+        };
+      }
       // const rowAffected = await db("campaign")
       //   .where("campaignId", "=", campaignId)
       //   .where("campaignEnd", "<", new Date())
       //   .del();
-      if (rowAffected === 0) {
-        return { status: "error", message: "Campaign is not ended yet" };
-      } else {
-        return { status: "success", message: "Campaign is deleted" };
-      }
     }
   }
   async uploadImage(imgData) {
@@ -184,6 +194,7 @@ class CampaignService {
     }
   }
   async joinCampaign(data) {
+    console.log(data);
     const { userId, campaignId } = data;
 
     const tableUserInCampaign = db("userInCampaign");
@@ -207,9 +218,19 @@ class CampaignService {
         if (userCount >= campaignLimit) {
           return { status: "error", message: "Campaign is full" };
         } else {
-          await tableUserInCampaign.insert(userId, campaignId);
+          await tableUserInCampaign.insert({
+            campaignId,
+            userId,
+          });
+
           return { status: "success", message: "Join campaign success" };
         }
+      } else {
+        await tableUserInCampaign.insert({
+          campaignId,
+          userId,
+        });
+        return { status: "success", message: "Join campaign success" };
       }
     } else {
       return { status: "error", message: "You already joined this campaign" };

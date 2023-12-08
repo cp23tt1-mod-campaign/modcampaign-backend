@@ -82,12 +82,16 @@ class CampaignController {
     }
   }
   async deleteCampaign(req, res) {
+    const { campaignId, userId } = req.query;
     try {
-      if (req.params.id == null) {
+      if (userId === null) {
+        throw new ErrorHandler(400, "User id is required");
+      }
+      if (campaignId === null) {
         throw new ErrorHandler(400, "Campaign id is required");
       }
 
-      const data = await CampaignService.deleteCampaign(req.params.id);
+      const data = await CampaignService.deleteCampaign(campaignId, userId);
       if (data.status === "notFound") {
         throw new ErrorHandler(404, data.message);
       } else if (data.status === "error") {
