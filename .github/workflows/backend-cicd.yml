@@ -70,5 +70,5 @@ jobs:
             docker rmi ghcr.io/cp23tt1-mod-campaign/modcampaign-backend-images
             docker pull ghcr.io/cp23tt1-mod-campaign/modcampaign-backend-images
             #docker-compose pull modcamp-becon
-            #docker-compose up -d modcamp-becon
-            docker-compose start modcamp-becon
+            docker-compose up -d modcamp-becon
+            #docker-compose start modcamp-becon
