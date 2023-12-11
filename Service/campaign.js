@@ -58,6 +58,7 @@ class CampaignService {
         "userInCampaign.campaignId"
       );
       table.where("userInCampaign.userId", userId);
+      table.orderBy("campaign.campaignId", "desc");
       data = await table.select();
     } else if (listType === "owned") {
       table.where("userId", userId);
@@ -108,40 +109,42 @@ class CampaignService {
     // return data;
   }
   async createCampaign(campaignData) {
-    console.log(campaignData.campaignName);
+    // console.log(campaignData.campaignName);
+    const checkRequire = [];
     if (!campaignData.campaignName) {
-      return { status: "error", message: "Campaign name is required" };
+      checkRequire.push("Campaign name");
     }
     if (!campaignData.campaignDetail) {
-      return { status: "error", message: "Campaign detail is required" };
+      checkRequire.push("Campaign detail");
     }
     if (!campaignData.campaignStart) {
-      return { status: "error", message: "Campaign start is required" };
+      checkRequire.push("Campaign start");
     }
     if (!campaignData.campaignEnd) {
-      return { status: "error", message: "Campaign end is required" };
+      checkRequire.push("Campaign end");
     }
     if (!campaignData.campaignType) {
-      return { status: "error", message: "Campaign type is required" };
+      checkRequire.push("Campaign type");
     }
     if (!campaignData.campaignImageUrl) {
-      return { status: "error", message: "Campaign image is required" };
+      checkRequire.push("Campaign image");
     }
     if (!campaignData.campaignReward) {
-      return { status: "error", message: "Campaign reward is required" };
+      checkRequire.push("Campaign reward");
     }
     if (!campaignData.campaignCategoryId) {
-      return { status: "error", message: "Campaign category is required" };
+      checkRequire.push("Campaign category");
     }
     if (!campaignData.userId) {
-      return { status: "error", message: "User id is required" };
+      checkRequire.push("User id");
+
+      return { status: "error", message: { required: checkRequire } };
     }
 
     const table = db("campaign");
 
     table.where("campaignName", campaignData.campaignName);
     const uniqueNameValidate = await table.select();
-    console.log(uniqueNameValidate);
     if (uniqueNameValidate.length > 0) {
       return { status: "error", message: "Campaign name must be unique" };
     } else {
