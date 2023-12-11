@@ -1,6 +1,7 @@
 const campaignModel = require("../Model/campaign.js");
 const db = require("../Config/db.js");
 const { google } = require("googleapis");
+const { Storage } = require("@google-cloud/storage");
 const path = require("path");
 const fs = require("fs");
 
@@ -107,6 +108,7 @@ class CampaignService {
     // return data;
   }
   async createCampaign(campaignData) {
+    console.log(campaignData);
     const table = db("campaign");
     return table.insert(campaignData);
     // return await db("campaign").insert(campaignData);
@@ -155,42 +157,69 @@ class CampaignService {
     }
   }
   async uploadImage(imgData) {
-    const CLIENT_ID =
-      "111856545179-m9ptsndmdagfhgov9ni0rd5i1f9osbc0.apps.googleusercontent.com";
-    const CLIENT_SECRET = "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";
-    const REDIRECT_URI = "https://developers.google.com/oauthplayground";
-    const REFRESH_TOKEN =
-      "1//041mpcewaEiyzCgYIARAAGAQSNwF-L9Irn0udX6xXveJbwgisnksyRDvW4byTXy8ddGxrgXaiwwufjnRVJcY9qMrjyd90nYcKqMU";
-    const oauth2Client = new google.auth.OAuth2(
-      CLIENT_ID,
-      CLIENT_SECRET,
-      REDIRECT_URI
-    );
-    oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
-    const filePath = path.join(imgData.path);
-    const drive = google.drive({
-      version: "v3",
-      auth: oauth2Client,
-    });
+    let projectId = "modcampaign";
+    let keyFilename = "adminKey.json";
+    const storage = new Storage({ projectId, keyFilename });
+    const bucket = storage.bucket("modcampaign-images");
+    // });
     try {
-      const res = await drive.files.create({
-        requestBody: {
-          name: imgData.filename,
-          mimeType: "image/jpg",
-          parents: ["1L5oH1YIVKlXpZJZwdLtLDc5JozoWCiBM"],
-        },
-        media: {
-          mimeType: "image/jpg",
-          body: fs.createReadStream(filePath),
-        },
-      });
-      fs.unlink(filePath, (err) => {
-        if (err) console.log(err);
+      console.log("Try to upload");
+      const filePath = path.join(imgData.path);
+      const bucketFile = bucket.file(imgData.filename);
+
+      await new Promise((resolve, reject) => {
+        fs.createReadStream(filePath)
+          .pipe(
+            bucketFile.createWriteStream({
+              metadata: {
+                contentType: imgData.mimetype,
+              },
+              resumable: false,
+            })
+          )
+          .on("error", (error) => {
+            console.log(error);
+            reject(error);
+          })
+          .on("finish", async () => {
+            try {
+              // Make the file public
+              // await bucketFile.makePublic();
+
+              // Construct the public URL
+              const publicUrl = `https://storage.googleapis.com/${bucket.name}/${imgData.filename}`;
+
+              console.log("File uploaded successfully. Public URL:", publicUrl);
+
+              // Clean up: delete the local file
+              fs.unlink(filePath, (err) => {
+                if (err) console.log(err);
+              });
+
+              // Resolve the promise with the image file name
+              resolve(imgData.filename);
+            } catch (error) {
+              console.log("Error making file public:", error.message);
+              // Reject the promise with the error
+              reject(error);
+            }
+          });
       });
 
-      return res.data;
+      // Return the image file name in the response
+      return {
+        success: true,
+        fileName: imgData.filename,
+        message: "Upload campaign image success",
+      };
     } catch (error) {
-      return error.message;
+      console.log("Error during file upload:", error.message);
+      // Return an error response
+      return {
+        success: false,
+        message: "Upload campaign image failed",
+        error: error.message,
+      };
     }
   }
   async joinCampaign(data) {
@@ -235,6 +264,11 @@ class CampaignService {
     } else {
       return { status: "error", message: "You already joined this campaign" };
     }
+  }
+  async readCampaignCategories() {
+    const table = db("campaignCategory");
+    const data = await table.select();
+    return data;
   }
 }
 module.exports = new CampaignService();

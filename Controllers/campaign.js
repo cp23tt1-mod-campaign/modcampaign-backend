@@ -28,6 +28,9 @@ class CampaignController {
   async readCampaignById(req, res) {
     const { id } = req.params;
     try {
+      if (id === undefined) {
+        throw new ErrorHandler(400, "Campaign id is required");
+      }
       const data = await CampaignService.readCampaignById(id);
       if (data.status === "notFound") {
         throw new ErrorHandler(404, data.message);
@@ -113,10 +116,15 @@ class CampaignController {
   async uploadCampaignImage(req, res) {
     try {
       const data = await CampaignService.uploadImage(req.file);
-      res.status(200).send({
-        message: "Upload campaign image success",
-        data: data,
-      });
+      console.log(data);
+      if (data.success) {
+        res.status(200).send({
+          message: data.message,
+          fileName: data.fileName,
+        });
+      } else {
+        throw new ErrorHandler(400, data.message);
+      }
     } catch (error) {
       return handleError(error, res);
     }
@@ -134,10 +142,17 @@ class CampaignController {
       }
     } catch (error) {
       return handleError(error, res);
-      // res.status(500).send({
-      //   message: "Join campaign fail",
-      //   data: error,
-      // });
+    }
+  }
+  async readCampaignCategories(req, res) {
+    try {
+      const data = await CampaignService.readCampaignCategories();
+      res.status(200).send({
+        message: "Get campaign categories success",
+        data: data,
+      });
+    } catch (error) {
+      return handleError(error, res);
     }
   }
 }

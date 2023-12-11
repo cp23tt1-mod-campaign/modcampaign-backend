@@ -31,6 +31,10 @@ router
 
 router.route("/campaign/join").post(CampaignController.joinCampaign);
 
+router
+  .route("/campaign-categories")
+  .get(CampaignController.readCampaignCategories);
+
 // router.get("/getPersonalHealth/:id", (req, res) => {
 //   console.log(req.params);
 //   const { id } = req.params;
