@@ -195,16 +195,16 @@ class CampaignService {
     // });
     try {
       console.log("Try to upload");
-      const filePath = path.join(imgData.path);
+      // const filePath = path.join(imgData.path);
       // console.log(imgData.originalname);
       // const filePath = path.join(
       //   __dirname,
       //   `../Service/fileUploads/${imgData.originalname}}`
       // );
-      // const filePath = path.join(
-      //   __dirname,
-      //   `/Service/fileUploads/${imgData.originalname}`
-      // );
+      const filePath = path.join(
+        __dirname,
+        `../Service/fileUploads/${imgData.originalname}`
+      );
       console.log(filePath);
       const bucketFile = bucket.file(imgData.originalname);
 
@@ -233,12 +233,12 @@ class CampaignService {
               console.log("File uploaded successfully. Public URL:", publicUrl);
 
               // Clean up: delete the local file
-              fs.unlink(filePath, (err) => {
-                if (err) console.log(err);
-              });
 
               // Resolve the promise with the image file name
               resolve(imgData.filename);
+              fs.unlink(filePath, (err) => {
+                if (err) console.log(err);
+              });
             } catch (error) {
               console.log("Error making file public:", error.message);
               // Reject the promise with the error
