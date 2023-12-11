@@ -66,9 +66,9 @@ jobs:
             cd /home/sysadmin/ModCampaign
             docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io 
             docker-compose stop modcamp-becon
-            #docker-compose rm --force modcamp-becon
-            docker rmi ghcr.io/cp23tt1-mod-campaign/modcampaign-backend-images
-            docker pull ghcr.io/cp23tt1-mod-campaign/modcampaign-backend-images
-            #docker-compose pull modcamp-becon
+            docker-compose rm --force modcamp-becon
+            docker rmi ghcr.io/cp23tt1-mod-campaign/modcampaign-backend-images:latest
+            docker pull ghcr.io/cp23tt1-mod-campaign/modcampaign-backend-images:latest
+            docker-compose pull modcamp-becon
             docker-compose up -d modcamp-becon
-            #docker-compose start modcamp-becon
+    
