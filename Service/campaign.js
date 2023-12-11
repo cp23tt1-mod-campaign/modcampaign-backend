@@ -112,39 +112,37 @@ class CampaignService {
     // console.log(campaignData.campaignName);
     const checkRequire = [];
     if (!campaignData.campaignName) {
-      checkRequire.push("Campaign name");
     }
     if (!campaignData.campaignDetail) {
-      checkRequire.push("Campaign detail");
+      return { status: "error", message: "Campaign detail is required" };
     }
     if (!campaignData.campaignStart) {
-      checkRequire.push("Campaign start");
+      return { status: "error", message: "Campaign start is required" };
     }
     if (!campaignData.campaignEnd) {
-      checkRequire.push("Campaign end");
+      return { status: "error", message: "Campaign end is required" };
     }
     if (!campaignData.campaignType) {
-      checkRequire.push("Campaign type");
+      return { status: "error", message: "Campaign type is required" };
     }
     if (!campaignData.campaignImageUrl) {
-      checkRequire.push("Campaign image");
+      return { status: "error", message: "Campaign image is required" };
     }
     if (!campaignData.campaignReward) {
-      checkRequire.push("Campaign reward");
+      return { status: "error", message: "Campaign reward is required" };
     }
     if (!campaignData.campaignCategoryId) {
-      checkRequire.push("Campaign category");
+      return { status: "error", message: "Campaign category is required" };
     }
     if (!campaignData.userId) {
-      checkRequire.push("User id");
-
-      return { status: "error", message: { required: checkRequire } };
+      return { status: "error", message: "User id is required" };
     }
 
     const table = db("campaign");
 
     table.where("campaignName", campaignData.campaignName);
     const uniqueNameValidate = await table.select();
+    console.log(uniqueNameValidate);
     if (uniqueNameValidate.length > 0) {
       return { status: "error", message: "Campaign name must be unique" };
     } else {
