@@ -17,19 +17,23 @@ const CampaignController = require("../Controllers/campaign");
 router
   .route("/campaign")
   .get(CampaignController.readCampaignList)
-  .post(CampaignController.createCampaign);
+  .post(CampaignController.createCampaign)
+  .delete(CampaignController.deleteCampaign);
 
 router
   .route("/campaign/:id")
   .get(CampaignController.readCampaignById)
-  .patch(CampaignController.updateCampaign)
-  .delete(CampaignController.deleteCampaign);
+  .patch(CampaignController.updateCampaign);
 
 router
   .route("/campaign/upload-img")
   .post(upload.single("image"), CampaignController.uploadCampaignImage);
 
 router.route("/campaign/join").post(CampaignController.joinCampaign);
+
+router
+  .route("/campaign-categories")
+  .get(CampaignController.readCampaignCategories);
 
 // router.get("/getPersonalHealth/:id", (req, res) => {
 //   console.log(req.params);
