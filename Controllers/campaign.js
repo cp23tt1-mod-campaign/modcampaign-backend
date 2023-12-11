@@ -51,15 +51,18 @@ class CampaignController {
   async createCampaign(req, res) {
     try {
       const data = await CampaignService.createCampaign(req.body);
-      res.status(200).send({
-        message: "Create campaign success",
-        // data: data
-      });
+      console.log(data);
+      if (data.status === "error") {
+        throw new ErrorHandler(400, data.message);
+      } else if (data.status === "success") {
+        res.status(200).send({
+          status: data.status,
+          statusCode: 200,
+          message: data.message,
+        });
+      }
     } catch (error) {
-      res.status(500).send({
-        message: "Create campaign fail",
-        data: error,
-      });
+      return handleError(error, res);
     }
   }
   async updateCampaign(req, res) {

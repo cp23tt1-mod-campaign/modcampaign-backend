@@ -108,20 +108,51 @@ class CampaignService {
     // return data;
   }
   async createCampaign(campaignData) {
-    console.log(campaignData);
+    console.log(campaignData.campaignName);
+    if (!campaignData.campaignName) {
+      return { status: "error", message: "Campaign name is required" };
+    }
+    if (!campaignData.campaignDetail) {
+      return { status: "error", message: "Campaign detail is required" };
+    }
+    if (!campaignData.campaignStart) {
+      return { status: "error", message: "Campaign start is required" };
+    }
+    if (!campaignData.campaignEnd) {
+      return { status: "error", message: "Campaign end is required" };
+    }
+    if (!campaignData.campaignType) {
+      return { status: "error", message: "Campaign type is required" };
+    }
+    if (!campaignData.campaignImageUrl) {
+      return { status: "error", message: "Campaign image is required" };
+    }
+    if (!campaignData.campaignReward) {
+      return { status: "error", message: "Campaign reward is required" };
+    }
+    if (!campaignData.campaignCategoryId) {
+      return { status: "error", message: "Campaign category is required" };
+    }
+    if (!campaignData.userId) {
+      return { status: "error", message: "User id is required" };
+    }
+
     const table = db("campaign");
-    return table.insert(campaignData);
-    // return await db("campaign").insert(campaignData);
-    // return campaignModel.createCampaign(campaignData);
+
+    table.where("campaignName", campaignData.campaignName);
+    const uniqueNameValidate = await table.select();
+    console.log(uniqueNameValidate);
+    if (uniqueNameValidate.length > 0) {
+      return { status: "error", message: "Campaign name must be unique" };
+    } else {
+      await table.insert(campaignData);
+      return { status: "success", message: "Create campaign success" };
+    }
   }
   async updateCampaign(campaignId, campaignData) {
     const table = db("campaign");
     table.where("campaignId", campaignId);
     return table.update(campaignData);
-    // return await db("campaign")
-    //   .where("campaignId", campaignId)
-    //   .update(campaignData);
-    // return campaignModel.updateCampaign(campaignId, campaignData);
   }
   async deleteCampaign(campaignId, userId) {
     const table = db("campaign");
@@ -164,8 +195,18 @@ class CampaignService {
     // });
     try {
       console.log("Try to upload");
-      const filePath = path.join(imgData.path);
-      const bucketFile = bucket.file(imgData.filename);
+      // const filePath = path.join(imgData.path);
+      // console.log(imgData.originalname);
+      // const filePath = path.join(
+      //   __dirname,
+      //   `../Service/fileUploads/${imgData.originalname}}`
+      // );
+      const filePath = path.join(
+        __dirname,
+        `../Service/fileUploads/${imgData.originalname}`
+      );
+      console.log(filePath);
+      const bucketFile = bucket.file(imgData.originalname);
 
       await new Promise((resolve, reject) => {
         fs.createReadStream(filePath)
@@ -192,12 +233,12 @@ class CampaignService {
               console.log("File uploaded successfully. Public URL:", publicUrl);
 
               // Clean up: delete the local file
-              fs.unlink(filePath, (err) => {
-                if (err) console.log(err);
-              });
 
               // Resolve the promise with the image file name
               resolve(imgData.filename);
+              fs.unlink(filePath, (err) => {
+                if (err) console.log(err);
+              });
             } catch (error) {
               console.log("Error making file public:", error.message);
               // Reject the promise with the error
