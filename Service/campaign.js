@@ -17,6 +17,7 @@ class CampaignService {
         "=",
         "campaignCategory.campaignCategoryId"
       );
+      table.andWhere("campaign.campaignEnd", ">", new Date().toISOString());
       table.whereNotExists((notExist) => {
         notExist
           .select("*")
@@ -42,6 +43,7 @@ class CampaignService {
           "campaign.campaignCategoryId",
           "cc.campaignCategoryId"
         );
+      table.andWhere("campaign.campaignEnd", ">", new Date().toISOString());
       table.whereNotExists((notExist) => {
         notExist
           .select("*")
@@ -58,6 +60,7 @@ class CampaignService {
         "userInCampaign.campaignId"
       );
       table.where("userInCampaign.userId", userId);
+      table.andWhere("campaign.campaignEnd", ">", new Date().toISOString());
       table.orderBy("campaign.campaignId", "desc");
       data = await table.select();
     } else if (listType === "owned") {
