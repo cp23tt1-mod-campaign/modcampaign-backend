@@ -31,25 +31,4 @@ router
 
 router.route("/campaign/join").post(CampaignController.joinCampaign);
 
-router
-  .route("/campaign-categories")
-  .get(CampaignController.readCampaignCategories);
-
-// router.get("/getPersonalHealth/:id", (req, res) => {
-//   console.log(req.params);
-//   const { id } = req.params;
-//   console.log(id);
-//   res.send(`Your personal health id is: ${id}`);
-// });
-
-// router.post("/createCampaign", (req, res) => {
-//   // const body = req.body;
-//   const jsonBody = JSON.stringify(req.body);
-//   console.log(jsonBody);
-//   console.log(req.body);
-
-//   res.status(201);
-//   res.send(`Your campaign is created`);
-// });
-
 module.exports = router;

@@ -310,10 +310,5 @@ class CampaignService {
       return { status: "error", message: "You already joined this campaign" };
     }
   }
-  async readCampaignCategories() {
-    const table = db("campaignCategory");
-    const data = await table.select();
-    return data;
-  }
 }
 module.exports = new CampaignService();

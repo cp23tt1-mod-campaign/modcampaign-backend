@@ -18,11 +18,6 @@ class CampaignController {
       });
     } catch (error) {
       return handleError(error, res);
-      // console.log(error);
-      // res.status(500).send({
-      //   message: "Get campaign fail",
-      //   data: error,
-      // });
     }
   }
   async readCampaignById(req, res) {
@@ -42,16 +37,11 @@ class CampaignController {
       }
     } catch (error) {
       return handleError(error, res);
-      // res.status(500).send({
-      //   message: "Get campaign fail",
-      //   data: error,
-      // });
     }
   }
   async createCampaign(req, res) {
     try {
       const data = await CampaignService.createCampaign(req.body);
-      console.log(data);
       if (data.status === "error") {
         throw new ErrorHandler(400, data.message);
       } else if (data.status === "success") {
@@ -143,17 +133,6 @@ class CampaignController {
           // data: data
         });
       }
-    } catch (error) {
-      return handleError(error, res);
-    }
-  }
-  async readCampaignCategories(req, res) {
-    try {
-      const data = await CampaignService.readCampaignCategories();
-      res.status(200).send({
-        message: "Get campaign categories success",
-        data: data,
-      });
     } catch (error) {
       return handleError(error, res);
     }
