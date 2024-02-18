@@ -42,6 +42,7 @@ const auth = (req, res, next) => {
             message: "Permission denied",
           });
         }
+        console.log("test");
       } catch (error) {
         return handleError(error, res);
       }
