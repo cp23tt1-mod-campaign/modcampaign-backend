@@ -34,7 +34,7 @@ class UserService {
     } = payload;
     const checkRequire = [];
     if (!firstName) {
-      checkRequire.push("fistName");
+      checkRequire.push("firstName");
     }
     if (!lastName) {
       checkRequire.push("lastName");
