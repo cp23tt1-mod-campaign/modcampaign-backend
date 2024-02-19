@@ -78,11 +78,11 @@ class UserService {
           role: "Attendees",
         };
         const table = db("user");
-        // const idData = await table.insert(data);
-        // data = {
-        //   ...data,
-        //   userId: idData[0],
-        // };
+        const idData = await table.insert(data);
+        data = {
+          ...data,
+          userId: idData[0],
+        };
         const accessToken = TokenManager.getGenerateAccessToken(data);
 
         // Prepare the response object
