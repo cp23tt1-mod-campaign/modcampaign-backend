@@ -17,10 +17,6 @@ class UserController {
     }
   }
   async createUser(req, res) {
-    // console.log("🚀 ~ UserController ~ createUser ~ next:", next);
-
-    // const token = req.headers.authorization.split(" ")[1];
-    // auth(req, res, next);
     try {
       const data = await UserService.createUser(req.body);
       console.log(data);
@@ -61,17 +57,29 @@ class UserController {
     try {
       if (id === undefined) {
         throw new ErrorHandler(400, "User id is required");
-      }
-      const data = await UserService.updateUser(id, req.body);
-      console.log(data);
-      if (data.status === "error") {
-        throw new ErrorHandler(400, data.message);
-      } else if (data.status === "success") {
-        res.status(200).send({
-          status: data.status,
-          statusCode: 200,
-          message: data.message,
-        });
+      } else {
+        const token = req.headers.authorization.split(" ")[1];
+        const dataDecrypt = TokenManager.getVerifyToken(token);
+        if (dataDecrypt.userId !== parseInt(id)) {
+          throw new ErrorHandler(
+            403,
+            "User is not authorized to update this user data"
+          );
+        } else {
+          const data = await UserService.updateUser(id, req.body);
+          console.log(data);
+          if (data.status === "error") {
+            throw new ErrorHandler(400, data.message);
+          } else if (data.status === "notFound") {
+            throw new ErrorHandler(404, data.message);
+          } else if (data.status === "success") {
+            res.status(200).send({
+              status: data.status,
+              statusCode: 200,
+              message: data.message,
+            });
+          }
+        }
       }
     } catch (error) {
       return handleError(error, res);
