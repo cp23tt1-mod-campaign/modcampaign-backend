@@ -20,37 +20,87 @@ class UserService {
     }
   }
   async createUser(payload) {
-    const { email } = payload;
-
-    const table = db("user");
-    const isExist = await table.where("email", email);
-    if (isExist.length === 0) {
-      let data = {
-        ...payload,
-        role: "Attendees",
-      };
-      const table = db("user");
-      const idData = await table.insert(data);
-      data = {
-        ...data,
-        userId: idData[0],
-      };
-      const accessToken = TokenManager.getGenerateAccessToken(data);
-
-      // Prepare the response object
-      const responseData = {
-        ...data,
-        accessToken,
-      };
-
+    const {
+      firstName,
+      lastName,
+      email,
+      profileImage,
+      gender,
+      age,
+      height,
+      weight,
+      activityLevel,
+      bmr,
+    } = payload;
+    const checkRequire = [];
+    if (!firstName) {
+      checkRequire.push("fistName");
+    }
+    if (!lastName) {
+      checkRequire.push("lastName");
+    }
+    if (!email) {
+      checkRequire.push("email");
+    }
+    if (!profileImage) {
+      checkRequire.push("profileImage");
+    }
+    if (!gender) {
+      checkRequire.push("gender");
+    }
+    if (!age) {
+      checkRequire.push("age");
+    }
+    if (!height) {
+      checkRequire.push("height");
+    }
+    if (!weight) {
+      checkRequire.push("weight");
+    }
+    if (!activityLevel) {
+      checkRequire.push("activityLevel");
+    }
+    if (!bmr) {
+      checkRequire.push("bmr");
+    }
+    if (checkRequire.length > 0) {
       return {
-        status: "success",
-        message: "Create user success",
-        data: responseData,
+        status: "error",
+        message: "Field required",
+        data: checkRequire.join(", "),
       };
     } else {
-      return { status: "found", message: "User is exist" };
+      const table = db("user");
+      const isExist = await table.where("email", email);
+      if (isExist.length === 0) {
+        let data = {
+          ...payload,
+          role: "Attendees",
+        };
+        const table = db("user");
+        // const idData = await table.insert(data);
+        // data = {
+        //   ...data,
+        //   userId: idData[0],
+        // };
+        const accessToken = TokenManager.getGenerateAccessToken(data);
+
+        // Prepare the response object
+        const responseData = {
+          ...data,
+          accessToken,
+        };
+
+        return {
+          status: "success",
+          message: "Create user success",
+          data: responseData,
+        };
+      } else {
+        return { status: "found", message: "User is exist" };
+      }
     }
+
     // console.log(data);
   }
   async getUserById(id) {
@@ -64,11 +114,12 @@ class UserService {
     try {
       const existingUser = await table.where("userId", id).first();
       if (!existingUser) {
-        return { status: "error", message: "User not found" };
+        return { status: "not found", message: "User not found" };
       }
 
       // Merge existing user data with the payload
-      const updatedUser = { ...existingUser, ...payload };
+      const updatedUser = { ...existingUser, ...payload, role: "Attendees" };
+      console.log(updatedUser);
       // Update only the fields present in the payload
       await table.where("userId", id).update(updatedUser);
 

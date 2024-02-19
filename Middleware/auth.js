@@ -31,11 +31,9 @@ const auth = (req, res, next) => {
           req.query.status === "ended"))
     ) {
       const token = req.headers.authorization.split(" ")[1];
-      console.log(token);
       try {
-        const res = TokenManager.getVerifyToken(token);
-        console.log(res);
-        if (res.role === "Creator") {
+        const dataDecrypt = TokenManager.getVerifyToken(token);
+        if (dataDecrypt.role === "Creator") {
           next();
         } else {
           res.status(403).send({
