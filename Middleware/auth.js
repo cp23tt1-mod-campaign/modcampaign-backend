@@ -22,7 +22,7 @@ const auth = (req, res, next) => {
       });
     }
   } else {
-    console.log(req._parsedUrl.pathname);
+    // console.log(req._parsedUrl.pathname);
 
     if (
       (req._parsedUrl.pathname === "/api/campaign" && req.method === "POST") ||
@@ -34,17 +34,22 @@ const auth = (req, res, next) => {
     ) {
       const token = req.headers.authorization.split(" ")[1];
       const dataDecrypt = TokenManager.getVerifyToken(token);
-      console.log(dataDecrypt.role);
-      try {
-        if (dataDecrypt.role === "Creator") {
-          next();
-        } else {
-          res.status(403).send({
-            message: "Permission denied",
-          });
+      if (dataDecrypt.message === "Token is not valid") {
+        res.status(400).send({
+          message: dataDecrypt.message,
+        });
+      } else {
+        try {
+          if (dataDecrypt.role === "Creator") {
+            next();
+          } else {
+            res.status(403).send({
+              message: "Permission denied",
+            });
+          }
+        } catch (error) {
+          return handleError(error, res);
         }
-      } catch (error) {
-        return handleError(error, res);
       }
     } else {
       next();
