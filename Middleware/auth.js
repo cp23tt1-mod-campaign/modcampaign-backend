@@ -7,13 +7,13 @@ const auth = (req, res, next) => {
   //   req.headers.authorization
   // );
   console.log("HTTP Method: ", req.method);
-  console.log("URL", req.url);
+  console.log("URL", req._parsedUrl.pathname);
   console.log("Query", req.query);
   const isTokenDefined = req.headers.authorization;
   if (isTokenDefined === undefined) {
     if (
-      (req.url === "/api/sign-in" && req.method === "POST") ||
-      (req.url === "/api/create-user" && req.method === "POST")
+      (req._parsedUrl.pathname === "/api/sign-in" && req.method === "POST") ||
+      (req._parsedUrl.pathname === "/api/create-user" && req.method === "POST")
     ) {
       next();
     } else {
@@ -22,17 +22,20 @@ const auth = (req, res, next) => {
       });
     }
   } else {
+    console.log(req._parsedUrl.pathname);
+
     if (
-      (req.url === "/api/campaign" && req.method === "POST") ||
-      (req.url === "/api/campaign" &&
+      (req._parsedUrl.pathname === "/api/campaign" && req.method === "POST") ||
+      (req._parsedUrl.pathname === "/api/campaign" &&
         req.method === "GET" &&
-        (req.query.listType === "owned" ||
-          req.query.status === "ongoing" ||
-          req.query.status === "ended"))
+        (req.query.status === "ongoing" ||
+          req.query.listType === "ended" ||
+          req.query.listType === "owned"))
     ) {
       const token = req.headers.authorization.split(" ")[1];
+      const dataDecrypt = TokenManager.getVerifyToken(token);
+      console.log(dataDecrypt.role);
       try {
-        const dataDecrypt = TokenManager.getVerifyToken(token);
         if (dataDecrypt.role === "Creator") {
           next();
         } else {
