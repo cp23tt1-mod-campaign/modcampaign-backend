@@ -105,7 +105,12 @@ class UserService {
   }
   async getUserById(id) {
     const table = db("user");
-    const data = await table.where("userId", id);
+    let data = await table.where("userId", id).first();
+    const accessToken = TokenManager.getGenerateAccessToken(data);
+    data = {
+      ...data,
+      accessToken,
+    };
     return data;
   }
   async updateUser(id, payload) {
@@ -118,7 +123,12 @@ class UserService {
       }
 
       // Merge existing user data with the payload
-      const updatedUser = { ...existingUser, ...payload, role: "Attendees" };
+      let updatedUser;
+      if (existingUser.role === "Creator") {
+        updatedUser = { ...existingUser, ...payload };
+      } else {
+        updatedUser = { ...existingUser, ...payload, role: "Attendees" };
+      }
       console.log(updatedUser);
       // Update only the fields present in the payload
       await table.where("userId", id).update(updatedUser);
