@@ -129,11 +129,18 @@ class UserService {
       } else {
         updatedUser = { ...existingUser, ...payload, role: "Attendees" };
       }
-      console.log(updatedUser);
       // Update only the fields present in the payload
-      await table.where("userId", id).update(updatedUser);
-
-      return { status: "success", message: "Update user success" };
+      const dbData = await table.where("userId", id).update(updatedUser);
+      const accessToken = TokenManager.getGenerateAccessToken(updatedUser);
+      updatedUser = {
+        ...updatedUser,
+        accessToken,
+      };
+      return {
+        status: "success",
+        message: "Update user success",
+        data: updatedUser,
+      };
     } catch (error) {
       return { status: "error", message: "Error updating user", error };
     }
