@@ -87,6 +87,7 @@ class UserController {
               status: data.status,
               statusCode: 200,
               message: data.message,
+              data: data.data,
             });
           }
         }
