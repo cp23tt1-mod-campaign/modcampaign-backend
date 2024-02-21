@@ -3,7 +3,7 @@ const jwtSecret = require("../jwt-secret.json");
 class TokenManager {
   static getGenerateAccessToken(payload) {
     const token = jwt.sign(payload, jwtSecret.JWT_SECRET, {
-      expiresIn: "24h",
+      // expiresIn: "24h",
     });
     return token;
   }
