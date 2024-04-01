@@ -39,6 +39,50 @@ class CampaignController {
       return handleError(error, res);
     }
   }
+  async getLeaderBoard(req, res) {
+    const { campaignId, userId, limit } = req.query;
+    try {
+      const data = await CampaignService.getLeaderBoard(
+        campaignId,
+        userId,
+        limit
+      );
+      if (data.status === "error") {
+        res.status(400).send({
+          statusCode: 400,
+          message: data.message,
+          data: data.data,
+        });
+      } else if (data.status === "success") {
+        res.status(200).send({
+          message: data.message,
+          data: data.data,
+        });
+      }
+    } catch (error) {
+      return handleError(error, res);
+    }
+  }
+  async updateLeaderBoard(req, res) {
+    const { campaignId, userId, targetValue } = req.body;
+    try {
+      const data = await CampaignService.updateLeaderBoard(
+        campaignId,
+        userId,
+        targetValue
+      );
+      if (data.status === "error") {
+        throw new ErrorHandler(400, data.message);
+      } else {
+        res.status(200).send({
+          message: data.message,
+          data: data,
+        });
+      }
+    } catch (error) {
+      return handleError(error, res);
+    }
+  }
   async createCampaign(req, res) {
     try {
       const data = await CampaignService.createCampaign(req.body);
@@ -125,6 +169,7 @@ class CampaignController {
   async joinCampaign(req, res) {
     try {
       const data = await CampaignService.joinCampaign(req.body);
+      console.log(data);
       if (data.status === "error") {
         throw new ErrorHandler(400, data.message);
       } else if (data.status === "success") {
@@ -134,6 +179,7 @@ class CampaignController {
         });
       }
     } catch (error) {
+      console.log(error);
       return handleError(error, res);
     }
   }

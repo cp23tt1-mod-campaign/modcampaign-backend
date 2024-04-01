@@ -4,7 +4,7 @@ class UserService {
   async validateUserExists(email) {
     console.log(email);
     const table = db("user");
-    const isExist = await table.where("email", email);
+    const isExist = await table.where("email", email.trim());
 
     if (isExist.length === 0) {
       return { status: "notFound", message: "User is not exist" };
@@ -23,6 +23,7 @@ class UserService {
     const {
       firstName,
       lastName,
+      displayName,
       email,
       profileImage,
       gender,
@@ -38,6 +39,9 @@ class UserService {
     }
     if (!lastName) {
       checkRequire.push("lastName");
+    }
+    if (!displayName) {
+      checkRequire.push("displayName");
     }
     if (!email) {
       checkRequire.push("email");
@@ -115,8 +119,25 @@ class UserService {
   }
   async updateUser(id, payload) {
     const table = db("user");
+    const checkRequire = [];
+    const { age, height, weight } = payload;
+    if (age <= 0) {
+      checkRequire.push("age");
+    }
+    if (height <= 0) {
+      checkRequire.push("height");
+    }
+    if (weight <= 0) {
+      checkRequire.push("weight");
+    }
 
-    try {
+    if (checkRequire.length > 0) {
+      return {
+        status: "error",
+        message: "Data muse be greater than 0",
+        data: checkRequire.join(", "),
+      };
+    } else {
       const existingUser = await table.where("userId", id).first();
       if (!existingUser) {
         return { status: "not found", message: "User not found" };
@@ -124,7 +145,7 @@ class UserService {
 
       // Merge existing user data with the payload
       let updatedUser;
-      if (existingUser.role === "Creator") {
+      if (existingUser.role === "Creator" || existingUser.role === "Admin") {
         updatedUser = { ...existingUser, ...payload };
       } else {
         updatedUser = { ...existingUser, ...payload, role: "Attendees" };
@@ -141,8 +162,48 @@ class UserService {
         message: "Update user success",
         data: updatedUser,
       };
-    } catch (error) {
-      return { status: "error", message: "Error updating user", error };
+    }
+  }
+  async getUserList() {
+    const table = db("user");
+    const data = await table
+      .select("userId", "displayName", "role", "profileImage")
+      .whereNot("role", "Admin");
+    return data;
+  }
+  async updateUserRole(id, payload) {
+    const table = db("user");
+    const checkRequire = [];
+    const { role } = payload;
+    if (!role) {
+      checkRequire.push("role");
+    }
+    if (role !== "Creator" && role !== "Admin" && role !== "Attendees") {
+      return {
+        status: "error",
+        message: "Invalid role",
+        data: "role must be Creator, Admin, or Attendees",
+      };
+    }
+    if (checkRequire.length > 0) {
+      return {
+        status: "error",
+        message: "Field required",
+        data: checkRequire.join(", "),
+      };
+    } else {
+      const existingUser = await table.where("userId", id).first();
+      if (!existingUser) {
+        return { status: "not found", message: "User not found" };
+      }
+      const updatedUser = { ...existingUser, ...payload };
+      // console.log(updatedUser);
+      const dbData = await table.where("userId", id).update(updatedUser);
+      return {
+        status: "success",
+        message: "Update user role success",
+        // data: updatedUser,
+      };
     }
   }
 }

@@ -60,8 +60,9 @@ class CampaignService {
         "userInCampaign.campaignId"
       );
       table.where("userInCampaign.userId", userId);
-      table.andWhere("campaign.campaignEnd", ">", new Date().toISOString());
-      table.orderBy("campaign.campaignId", "desc");
+      // table.andWhere("campaign.campaignEnd", ">", new Date().toISOString());
+      // table.orderBy("campaign.campaignId", "desc");
+      table.orderBy("campaign.campaignEnd", "desc");
       data = await table.select();
     } else if (listType === "owned") {
       table.where("userId", userId);
@@ -93,28 +94,131 @@ class CampaignService {
     return campaignModel.readCampaignList(data);
   }
   async readCampaignById(campaignId) {
-    const table = db("campaign");
+    const campaignTable = db("campaign");
+    const userInCampaignTable = db("userInCampaign");
     let data;
-    table.join(
+    campaignTable.join(
       "campaignCategory",
       "campaign.campaignCategoryId",
       "=",
       "campaignCategory.campaignCategoryId"
     );
-    table.join("user", "campaign.userId", "=", "user.userId");
-    table.where("campaignId", campaignId);
-    data = await table.select();
-    if (data.length === 0) {
-      return { status: "notFound", message: "Campaign not found" };
-    } else {
+    campaignTable.join("user", "campaign.userId", "=", "user.userId");
+    campaignTable.where("campaignId", campaignId);
+    data = await campaignTable.select().first();
+
+    // userInCampaignTable.join(
+    //   "user",
+    //   "userInCampaign.userId",
+    //   "=",
+    //   "user.userId"
+    // );
+    // userInCampaignTable
+    //   .where("campaignId", campaignId)
+    //   .orderBy("targetValue", "desc");
+
+    // const data2 = await userInCampaignTable.select(
+    //   "userInCampaign.userId",
+    //   "campaignId",
+    //   "targetValue",
+    //   "displayName"
+    // );
+    // console.log(data2);
+    // data.leaderBoard = data2;
+    if (data) {
       return campaignModel.readCampaignById(data);
+    } else {
+      return { status: "notFound", message: "Campaign not found" };
     }
     // return data;
+  }
+  async getLeaderBoard(campaignId, userId, limit) {
+    const checkRequire = [];
+    if (!campaignId) {
+      checkRequire.push("campaignId");
+    }
+    if (!userId) {
+      checkRequire.push("userId");
+    }
+    if (!limit) {
+      checkRequire.push("limit");
+    }
+
+    if (checkRequire.length > 0) {
+      return {
+        status: "error",
+        message: "Field required",
+        data: checkRequire.join(", "),
+      };
+    } else {
+      const table = db("userInCampaign");
+      table.join("user", "userInCampaign.userId", "=", "user.userId");
+      table.where("campaignId", campaignId);
+      table.orderBy("targetValue", "desc");
+      let currentUserData = {};
+
+      const data = await table.select(
+        "userInCampaign.userId",
+        "profileImage",
+        "campaignId",
+        "targetValue",
+        "displayName",
+        "userInCampaign.joinedDate"
+      );
+      data.map((user, index) => {
+        if (user.userId === +userId) {
+          currentUserData.profileImage = user.profileImage;
+          currentUserData.displayName = user.displayName;
+          currentUserData.targetValue = user.targetValue;
+          currentUserData.rank = data.indexOf(user) + 1;
+          currentUserData.joinedDate = user.joinedDate;
+        }
+        data[index].rank = data.indexOf(user) + 1;
+      });
+      // console.log(data.slice(0, limit));
+      let dataReturn;
+      if (parseInt(limit)) {
+        // table.limit(limit);
+        dataReturn = data.slice(0, limit);
+      } else {
+        dataReturn = data;
+      }
+      const returnData = {
+        leaderBoard: dataReturn,
+        currentUserData,
+      };
+
+      // console.log(currentUserData);
+      // return returnData;
+      return {
+        status: "success",
+        message: "Get leader board success ",
+        data: returnData,
+      };
+    }
+  }
+  async updateLeaderBoard(campaignId, userId, targetValue) {
+    console.log(campaignId, userId, targetValue);
+    const table = db("userInCampaign");
+    table.where("campaignId", campaignId);
+    table.andWhere("userId", userId);
+    const isExist = await table.select();
+    if (isExist.length === 0) {
+      return { status: "error", message: "User is not joined this campaign" };
+    } else {
+      table.where("campaignId", campaignId);
+      table.andWhere("userId", userId);
+      const res = await table.update({ targetValue });
+      console.log(res);
+
+      return { status: "success", message: "Update leader board success" };
+    }
   }
   async createCampaign(campaignData) {
     // console.log(campaignData.campaignName);
     const checkRequire = [];
     if (!campaignData.campaignName) {
+      return { status: "error", message: "Campaign name is required" };
     }
     if (!campaignData.campaignDetail) {
       return { status: "error", message: "Campaign detail is required" };
@@ -269,7 +373,7 @@ class CampaignService {
   }
   async joinCampaign(data) {
     console.log(data);
-    const { userId, campaignId } = data;
+    const { userId, campaignId, targetValue, joinedDate } = data;
 
     const tableUserInCampaign = db("userInCampaign");
     const tableCampaign = db("campaign");
@@ -303,6 +407,8 @@ class CampaignService {
         await tableUserInCampaign.insert({
           campaignId,
           userId,
+          targetValue,
+          joinedDate,
         });
         return { status: "success", message: "Join campaign success" };
       }

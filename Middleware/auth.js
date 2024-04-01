@@ -13,7 +13,9 @@ const auth = (req, res, next) => {
   if (isTokenDefined === undefined) {
     if (
       (req._parsedUrl.pathname === "/api/sign-in" && req.method === "POST") ||
-      (req._parsedUrl.pathname === "/api/create-user" && req.method === "POST")
+      (req._parsedUrl.pathname === "/api/create-user" &&
+        req.method === "POST") ||
+      (req._parsedUrl.pathname === "/api/discover" && req.method === "GET")
     ) {
       next();
     } else {
@@ -22,25 +24,21 @@ const auth = (req, res, next) => {
       });
     }
   } else {
+    const token = req.headers.authorization.split(" ")[1];
+    const dataDecrypt = TokenManager.getVerifyToken(token);
     // console.log(req._parsedUrl.pathname);
-
-    if (
-      (req._parsedUrl.pathname === "/api/campaign" && req.method === "POST") ||
-      (req._parsedUrl.pathname === "/api/campaign" &&
-        req.method === "GET" &&
-        (req.query.status === "ongoing" ||
-          req.query.listType === "ended" ||
-          req.query.listType === "owned"))
-    ) {
-      const token = req.headers.authorization.split(" ")[1];
-      const dataDecrypt = TokenManager.getVerifyToken(token);
-      if (dataDecrypt.message === "Token is not valid") {
-        res.status(400).send({
-          message: dataDecrypt.message,
-        });
-      } else {
+    const regex = /^\/api\/user-role(?:\/\d+)?$/;
+    if (dataDecrypt.message === "Token is not valid") {
+      res.status(400).send({
+        message: dataDecrypt.message,
+      });
+    } else {
+      if (
+        (regex.test(req._parsedUrl.pathname) && req.method === "PATCH") ||
+        (req._parsedUrl.pathname === "/api/users" && req.method === "GET")
+      ) {
         try {
-          if (dataDecrypt.role === "Creator") {
+          if (dataDecrypt.role === "Admin") {
             next();
           } else {
             res.status(403).send({
@@ -50,9 +48,29 @@ const auth = (req, res, next) => {
         } catch (error) {
           return handleError(error, res);
         }
+      } else if (
+        (req._parsedUrl.pathname === "/api/campaign" &&
+          req.method === "POST") ||
+        (req._parsedUrl.pathname === "/api/campaign" &&
+          req.method === "GET" &&
+          (req.query.status === "ongoing" ||
+            req.query.listType === "ended" ||
+            req.query.listType === "owned"))
+      ) {
+        try {
+          if (dataDecrypt.role === "Creator" || dataDecrypt.role === "Admin") {
+            next();
+          } else {
+            res.status(403).send({
+              message: "Permission denied",
+            });
+          }
+        } catch (error) {
+          return handleError(error, res);
+        }
+      } else {
+        next();
       }
-    } else {
-      next();
     }
   }
 };

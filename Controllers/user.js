@@ -44,7 +44,7 @@ class UserController {
     }
   }
   async getUserById(req, res) {
-    const { id } = req.query;
+    const { id } = req.params;
     try {
       if (id === undefined) {
         throw new ErrorHandler(400, "User id is required");
@@ -63,7 +63,7 @@ class UserController {
     }
   }
   async updateUser(req, res) {
-    const { id } = req.query;
+    const { id } = req.params;
     try {
       if (id === undefined) {
         throw new ErrorHandler(400, "User id is required");
@@ -79,7 +79,12 @@ class UserController {
           const data = await UserService.updateUser(id, req.body);
           console.log(data);
           if (data.status === "error") {
-            throw new ErrorHandler(400, data.message);
+            res.status(400).send({
+              statusCode: 400,
+              message: data.message,
+              data: data.data,
+            });
+            // throw new ErrorHandler(400, data.message);
           } else if (data.status === "notFound") {
             throw new ErrorHandler(404, data.message);
           } else if (data.status === "success") {
@@ -90,6 +95,45 @@ class UserController {
               data: data.data,
             });
           }
+        }
+      }
+    } catch (error) {
+      return handleError(error, res);
+    }
+  }
+  async getUserList(req, res) {
+    try {
+      const data = await UserService.getUserList();
+      res.status(200).send({
+        message: "Get user list success",
+        data: data,
+      });
+    } catch (error) {
+      return handleError(error, res);
+    }
+  }
+  async updateUserRole(req, res) {
+    const { id } = req.params;
+    try {
+      if (id === undefined) {
+        throw new ErrorHandler(400, "User id is required");
+      } else {
+        const data = await UserService.updateUserRole(id, req.body);
+        if (data.status === "error") {
+          res.status(400).send({
+            statusCode: 400,
+            message: data.message,
+            data: data.data,
+          });
+        } else if (data.status === "notFound") {
+          throw new ErrorHandler(404, data.message);
+        } else if (data.status === "success") {
+          res.status(200).send({
+            status: data.status,
+            statusCode: 200,
+            message: data.message,
+            data: data.data,
+          });
         }
       }
     } catch (error) {

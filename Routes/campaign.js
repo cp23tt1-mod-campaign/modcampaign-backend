@@ -31,4 +31,9 @@ router
 
 router.route("/campaign/join").post(CampaignController.joinCampaign);
 
+router
+  .route("/campaign-leader-board")
+  .get(CampaignController.getLeaderBoard)
+  .patch(CampaignController.updateLeaderBoard);
+
 module.exports = router;
