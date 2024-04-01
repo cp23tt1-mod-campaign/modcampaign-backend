@@ -24,7 +24,7 @@ class CampaignDAO {
     return dataDTO;
   }
   async readCampaignById(data) {
-    const dataDTO = dataMapper(data[0], campaignDetailDTO);
+    const dataDTO = dataMapper(data, campaignDetailDTO);
     // console.log(dataDTO);
     // const campaignDTO = data.map((campaign) => {
     //   return {
