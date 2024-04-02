@@ -388,7 +388,8 @@ class CampaignService {
       tableUserInCampaign.where("campaignId", campaignId);
       const resUserInCampaign = await tableUserInCampaign.select();
       const userCount = resUserInCampaign[0].userCount;
-
+      console.log(campaignLimit);
+      console.log(userCount);
       if (campaignLimit) {
         if (userCount >= campaignLimit) {
           return { status: "error", message: "Campaign is full" };
@@ -396,6 +397,8 @@ class CampaignService {
           await tableUserInCampaign.insert({
             campaignId,
             userId,
+            targetValue,
+            joinedDate,
           });
 
           return { status: "success", message: "Join campaign success" };
@@ -441,8 +444,9 @@ class CampaignService {
       const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-          user: "jirasin.qc@gmail.com",
-          pass: "faik vzda rbia rete",
+          user: "modcampaign.noreply@gmail.com",
+          // pass: "faik vzda rbia rete",
+          pass: "fuxi ddhb bsko vcmf",
         },
       });
       const mailOptions = {
