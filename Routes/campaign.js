@@ -36,4 +36,6 @@ router
   .get(CampaignController.getLeaderBoard)
   .patch(CampaignController.updateLeaderBoard);
 
+router.route("/campaign-reward").post(CampaignController.claimReward);
+
 module.exports = router;
