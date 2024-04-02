@@ -4,6 +4,7 @@ const { google } = require("googleapis");
 const { Storage } = require("@google-cloud/storage");
 const path = require("path");
 const fs = require("fs");
+const nodemailer = require("nodemailer");
 
 class CampaignService {
   async readCampaignList(query) {
@@ -414,6 +415,62 @@ class CampaignService {
       }
     } else {
       return { status: "error", message: "You already joined this campaign" };
+    }
+  }
+  async claimReward(campaignId, userId) {
+    const tableUserInCampaign = db("userInCampaign");
+    const tableCampaign = db("campaign");
+    const tableUser = db("user");
+
+    tableUserInCampaign.where("userId", userId);
+    tableUserInCampaign.andWhere("campaignId", campaignId);
+    const isExist = await tableUserInCampaign.select();
+    if (isExist.length === 0) {
+      return { status: "error", message: "User is not joined this campaign" };
+    } else {
+      tableCampaign.where("campaignId", campaignId);
+      const resCampaign = await tableCampaign.select(
+        "campaignReward",
+        "campaignName"
+      );
+      const campaignReward = resCampaign[0].campaignReward;
+      const campaignName = resCampaign[0].campaignName;
+      tableUser.where("userId", userId);
+      const resUser = await tableUser.select("email", "displayName");
+      const userEmail = resUser[0].email;
+      const userDisplayName = resUser[0].displayName;
+      console.log(campaignReward);
+      console.log(userEmail);
+      console.log(userDisplayName);
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "jirasin.qc@gmail.com",
+          pass: "faik vzda rbia rete",
+        },
+      });
+      const mailOptions = {
+        from: "jirasin.qc@gmail.com",
+        to: userEmail,
+        subject: "Reward from ModCampaign !!!",
+        text: `Congratulations, ${userDisplayName}!
+        You've won the ${campaignName} campaign. Your reward is ${campaignReward}.`,
+      };
+
+      const sendMailAsync = (mailOptions) => {
+        return new Promise((resolve, reject) => {
+          transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+              reject({ status: "error", message: err.message });
+            } else {
+              console.log("Email sent: " + info.response);
+              resolve({ status: "success", message: "Claim reward success" });
+            }
+          });
+        });
+      };
+      const response = await sendMailAsync(mailOptions);
+      return response;
     }
   }
 }

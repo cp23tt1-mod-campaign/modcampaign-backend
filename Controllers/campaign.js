@@ -183,6 +183,35 @@ class CampaignController {
       return handleError(error, res);
     }
   }
+  async claimReward(req, res) {
+    const { campaignId, userId, email } = req.body;
+
+    if (userId === null) {
+      throw new ErrorHandler(400, "User id is required");
+    }
+    if (campaignId === null) {
+      throw new ErrorHandler(400, "Campaign id is required");
+    }
+    // if (email === null) {
+    //   throw new ErrorHandler(400, "Email is required");
+    // }
+
+    try {
+      const data = await CampaignService.claimReward(campaignId, userId);
+      console.log(data);
+      if (data.status === "error") {
+        throw new ErrorHandler(400, data.message);
+      } else if (data.status === "success") {
+        res.status(200).send({
+          message: data.message,
+          // data: data
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return handleError(error, res);
+    }
+  }
 }
 module.exports = new CampaignController();
 // const db = require('../Config/db.js');
