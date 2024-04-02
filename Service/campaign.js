@@ -96,7 +96,6 @@ class CampaignService {
   }
   async readCampaignById(campaignId) {
     const campaignTable = db("campaign");
-    const userInCampaignTable = db("userInCampaign");
     let data;
     campaignTable.join(
       "campaignCategory",
@@ -105,27 +104,24 @@ class CampaignService {
       "campaignCategory.campaignCategoryId"
     );
     campaignTable.join("user", "campaign.userId", "=", "user.userId");
+
+    const tableUserInCampaign = db("userInCampaign");
+    // tableUserInCampaign.where("userId", userId);
+    // tableUserInCampaign.andWhere("campaignId", campaignId);
+    tableUserInCampaign.count("* as userCount");
+    tableUserInCampaign.where("campaignId", campaignId);
+    const resUserInCampaign = await tableUserInCampaign.select();
+    const userCount = resUserInCampaign[0].userCount;
+    console.log(userCount);
+    // campaignTable.join(
+    //   "userInCampaign",
+    //   "campaign.campaignId",
+    //   "userInCampaign.campaignId"
+    // );
+
     campaignTable.where("campaignId", campaignId);
     data = await campaignTable.select().first();
-
-    // userInCampaignTable.join(
-    //   "user",
-    //   "userInCampaign.userId",
-    //   "=",
-    //   "user.userId"
-    // );
-    // userInCampaignTable
-    //   .where("campaignId", campaignId)
-    //   .orderBy("targetValue", "desc");
-
-    // const data2 = await userInCampaignTable.select(
-    //   "userInCampaign.userId",
-    //   "campaignId",
-    //   "targetValue",
-    //   "displayName"
-    // );
-    // console.log(data2);
-    // data.leaderBoard = data2;
+    data.userCount = userCount;
     if (data) {
       return campaignModel.readCampaignById(data);
     } else {

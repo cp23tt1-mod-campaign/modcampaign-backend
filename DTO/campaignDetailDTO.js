@@ -11,4 +11,5 @@ module.exports = campaignDetailDTO = {
   category: "categoryName",
   categoryTarget: "categoryTarget",
   userOwner: "firstName",
+  userCount: "userCount",
 };
