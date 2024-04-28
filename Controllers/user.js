@@ -102,13 +102,15 @@ class UserController {
     }
   }
   async getUserList(req, res) {
+    const { currentPage, pageSize } = req.query;
     try {
-      const data = await UserService.getUserList();
+      const data = await UserService.getUserList(currentPage, pageSize);
       res.status(200).send({
         message: "Get user list success",
         data: data,
       });
     } catch (error) {
+      console.log(error);
       return handleError(error, res);
     }
   }
