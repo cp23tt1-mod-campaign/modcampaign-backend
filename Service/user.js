@@ -164,12 +164,42 @@ class UserService {
       };
     }
   }
-  async getUserList() {
-    const table = db("user");
-    const data = await table
-      .select("userId", "displayName", "role", "profileImage")
+  async getUserList(reqCurrentPage, reqPageSize) {
+    const countResult = await db("user")
+      .whereNot("role", "Admin")
+      .count("* as count");
+    const totalCount = countResult[0].count;
+    const pageSize = +reqPageSize || 10;
+    const currentPage = +reqCurrentPage || 1; // This should be dynamically set based on user input
+    // const currentPage = 1; // This should be dynamically set based on user input
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const offset = (currentPage - 1) * pageSize;
+
+    let users = await db("user")
+      .select("userId", "displayName", "role", "profileImage", "email")
       .whereNot("role", "Admin");
-    return data;
+    // .limit(pageSize)
+    // .offset(offset);
+
+    users.map((user, index) => {
+      users[index].num = users.indexOf(user) + 1;
+    });
+
+    if (offset === 0) {
+      users = users.slice(offset, pageSize);
+    } else {
+      users = users.slice(offset, offset + pageSize);
+    }
+
+    const pagination = {
+      currentPage,
+      pageSize,
+      totalPages,
+      totalCount,
+      offset,
+    };
+
+    return { users, pagination };
   }
   async updateUserRole(id, payload) {
     const table = db("user");
