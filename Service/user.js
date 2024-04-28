@@ -174,6 +174,7 @@ class UserService {
     // const currentPage = 1; // This should be dynamically set based on user input
     const totalPages = Math.ceil(totalCount / pageSize);
     const offset = (currentPage - 1) * pageSize;
+    let lastNum;
 
     let users = await db("user")
       .select("userId", "displayName", "role", "profileImage", "email")
@@ -183,6 +184,7 @@ class UserService {
 
     users.map((user, index) => {
       users[index].num = users.indexOf(user) + 1;
+      // lastNum = users[users[users.length]].num;
     });
 
     if (offset === 0) {
@@ -190,6 +192,9 @@ class UserService {
     } else {
       users = users.slice(offset, offset + pageSize);
     }
+    const lastIndex = users.length - 1;
+
+    lastNum = users[lastIndex].num;
 
     const pagination = {
       currentPage,
@@ -197,6 +202,7 @@ class UserService {
       totalPages,
       totalCount,
       offset,
+      lastNum,
     };
 
     return { users, pagination };
