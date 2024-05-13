@@ -1,4 +1,3 @@
-const campaignModel = require("../Model/campaign.js");
 const db = require("../Config/db.js");
 
 class CampaignCategoriesService {

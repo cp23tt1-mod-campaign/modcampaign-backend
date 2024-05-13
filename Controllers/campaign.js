@@ -3,10 +3,7 @@ const { ErrorHandler, handleError } = require("../Util/Error.js");
 
 class CampaignController {
   async readCampaignList(req, res) {
-    // console.log(req.headers.authorization);
     const { userId } = req.query;
-    // console.log(userId);
-
     try {
       if (userId === undefined) {
         throw new ErrorHandler(400, "User id is required");
@@ -104,7 +101,6 @@ class CampaignController {
       if (req.params.id == null) {
         throw new ErrorHandler(400, "Campaign id is required");
       }
-
       const data = await CampaignService.updateCampaign(
         req.params.id,
         req.body
@@ -115,10 +111,6 @@ class CampaignController {
       });
     } catch (error) {
       return handleError(error, res);
-      // res.status(500).send({
-      //   message: "Update campaign fail",
-      //   data: error,
-      // });
     }
   }
   async deleteCampaign(req, res) {
@@ -144,10 +136,6 @@ class CampaignController {
       }
     } catch (error) {
       return handleError(error, res);
-      // res.status(500).send({
-      //   message: "Delete campaign fail",
-      //   data: error,
-      // });
     }
   }
   async uploadCampaignImage(req, res) {
@@ -192,10 +180,6 @@ class CampaignController {
     if (campaignId === null) {
       throw new ErrorHandler(400, "Campaign id is required");
     }
-    // if (email === null) {
-    //   throw new ErrorHandler(400, "Email is required");
-    // }
-
     try {
       const data = await CampaignService.claimReward(campaignId, userId);
       console.log(data);
@@ -214,47 +198,3 @@ class CampaignController {
   }
 }
 module.exports = new CampaignController();
-// const db = require('../Config/db.js');
-
-// // exports.read = async (req, res) => {
-// //   console.log(req.query);
-// //   const { target, sortBy } = req.query;
-// //   console.log(target);
-// //   console.log(sortBy);
-// //   res.send(`Your target is: ${target} \n and sort by: ${sortBy}`);
-// // }
-
-// exports.readCampaignList = async (req, res) => {
-//   db('campaign').then(data => {
-//     res.status(200).send({
-//       message: 'Get campaign success',
-//       data: data
-//     })
-//   }).catch(err => {
-//     res.status(500).send({
-//       message: 'Get campaign fail',
-//       data: err
-//     })
-//   })
-// }
-// exports.readCampaignId = async (req, res) => {
-//   const { id } = req.params;
-//   db('campaign').where('campaignId', id).then(data => {
-//     res.status(200).send({
-//       message: 'Get campaign success',
-//       data: data
-//     })
-//    }
-//   ).catch(err => {
-//     res.status(500).send({
-//       message: 'Get campaign fail',
-//       data: err
-//     })
-//   })
-// }
-
-// exports.create = async (req, res) => {
-//   const { body } = req;
-//   console.log(body);
-//   res.send(`Your campaign is created`);
-// }

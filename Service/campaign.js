@@ -1,6 +1,5 @@
 const campaignModel = require("../Model/campaign.js");
 const db = require("../Config/db.js");
-const { google } = require("googleapis");
 const { Storage } = require("@google-cloud/storage");
 const path = require("path");
 const fs = require("fs");
@@ -106,19 +105,10 @@ class CampaignService {
     campaignTable.join("user", "campaign.userId", "=", "user.userId");
 
     const tableUserInCampaign = db("userInCampaign");
-    // tableUserInCampaign.where("userId", userId);
-    // tableUserInCampaign.andWhere("campaignId", campaignId);
     tableUserInCampaign.count("* as userCount");
     tableUserInCampaign.where("campaignId", campaignId);
     const resUserInCampaign = await tableUserInCampaign.select();
     const userCount = resUserInCampaign[0].userCount;
-    console.log(userCount);
-    // campaignTable.join(
-    //   "userInCampaign",
-    //   "campaign.campaignId",
-    //   "userInCampaign.campaignId"
-    // );
-
     campaignTable.where("campaignId", campaignId);
     data = await campaignTable.select().first();
     data.userCount = userCount;
@@ -127,7 +117,6 @@ class CampaignService {
     } else {
       return { status: "notFound", message: "Campaign not found" };
     }
-    // return data;
   }
   async getLeaderBoard(campaignId, userId, limit) {
     const checkRequire = [];
